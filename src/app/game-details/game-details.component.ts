@@ -1,21 +1,13 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  Injector,
-  resource,
-  signal,
-} from '@angular/core';
-import { DefaultComponent } from '../abstract-default.component';
-import { ShardTokensComponent } from '../../atomic-design/tokens/shards/shard-tokens.component';
-import { FlagColor, Game, Player, Token } from '../types';
-import { TokenComponent } from '../../atomic-design/tokens/token/token.component';
-import { InfluenceTokensComponent } from '../../atomic-design/tokens/influences/influence-tokens.component';
-import { ButtonComponent } from '../../atomic-design/button/button.component';
-import { api } from '../http.service';
-import { WithoutMyPlayerPipe } from './without-my-player.pipe';
-import { FlagComponent } from '../../atomic-design/flag/flag.component';
+import {Component, computed, effect, inject, Injector, resource, signal,} from '@angular/core';
+import {DefaultComponent} from '../abstract-default.component';
+import {ShardTokensComponent} from '../../atomic-design/tokens/shards/shard-tokens.component';
+import {FlagColor, Game, Player} from '../types';
+import {TokenComponent} from '../../atomic-design/tokens/token/token.component';
+import {InfluenceTokensComponent} from '../../atomic-design/tokens/influences/influence-tokens.component';
+import {ButtonComponent} from '../../atomic-design/button/button.component';
+import {api} from '../http.service';
+import {WithoutMyPlayerPipe} from './without-my-player.pipe';
+import {FlagComponent} from '../../atomic-design/flag/flag.component';
 
 @Component({
   selector: 'ins-game-details',
@@ -33,7 +25,7 @@ import { FlagComponent } from '../../atomic-design/flag/flag.component';
 export class GameDetailsComponent extends DefaultComponent {
   injector = inject(Injector);
 
-  game = signal<Game | undefined>(this.httpService.currentGame());
+  game = computed(() => this.httpService.currentGame())
 
   myPlayer = signal<Player | undefined>(undefined);
   nbRedFlags = signal<number>(0);
@@ -52,10 +44,6 @@ export class GameDetailsComponent extends DefaultComponent {
         game.flags.filter((flag) => flag.color === 'BLACK').length,
       );
     });
-
-    effect(() => {
-      this.game.set(this.httpService.currentGame());
-    });
   }
 
   giveToken(player: Player) {
@@ -65,7 +53,7 @@ export class GameDetailsComponent extends DefaultComponent {
           api(`games/${this.game()?.id}/players/${player.id}/tokens`),
           'POST',
         );
-        this.game.set(game);
+        this.httpService.currentGame.set(game);
         return game;
       },
       injector: this.injector,

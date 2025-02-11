@@ -85,7 +85,6 @@ export class MainComponent extends DefaultComponent {
             PlayerPayload
           >(api('games'), 'POST', this.createGameForm.getRawValue())
           .then((game) => {
-            console.log('gameee', game);
             this.applyNewGame(game, this.createGameDialog());
             return game;
           });

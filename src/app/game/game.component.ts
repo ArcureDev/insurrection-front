@@ -6,7 +6,7 @@ import {
   inject,
   Injector,
   resource,
-  signal,
+  signal, untracked,
   viewChild,
 } from '@angular/core';
 import { DefaultComponent } from '../abstract-default.component';
@@ -63,8 +63,10 @@ export class GameComponent extends DefaultComponent {
     effect(() => {
       const game = this.game();
       if (!game) return;
-      this.myPlayer.set(game.players.find((player) => player.me));
-      this.changeColorForm.controls.color.setValue(this.myPlayer()?.color);
+      untracked(() => {
+        this.myPlayer.set(game.players.find((player) => player.me));
+        this.changeColorForm.controls.color.setValue(this.myPlayer()?.color);
+      });
     });
   }
 

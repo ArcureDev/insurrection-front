@@ -1,13 +1,7 @@
-import {
-  effect,
-  Injectable,
-  Resource,
-  resource,
-  signal,
-  untracked,
-} from '@angular/core';
-import { toHttpParams } from './utils/object.utils';
-import { Game, User } from './types';
+import {effect, inject, Injectable, NgZone, resource, signal, untracked,} from '@angular/core';
+import {toHttpParams} from './utils/object.utils';
+import {Game, User} from './types';
+import {Observable} from 'rxjs';
 
 export const api = (value: string) => `/api/${value}`;
 export const apiWithParams = <T extends { [key in string]: any }>(
@@ -22,7 +16,6 @@ export const apiWithParams = <T extends { [key in string]: any }>(
   providedIn: 'root',
 })
 export class HttpService {
-  private eventSource?: EventSource;
 
   currentGameResource = resource({
     loader: () => this.sweetFetch<Game, void>(api('games/me/current')),
@@ -52,20 +45,19 @@ export class HttpService {
   }
 
   subscribeToGameUpdates() {
-    if (this.eventSource) return;
-    this.eventSource = new EventSource('/api/games/sse');
-    this.eventSource.onmessage = (event: MessageEvent<string>) => {
+    const eventSource = new EventSource('/api/games/sse');
+    eventSource.onmessage = (event: MessageEvent<string>) => {
       const game = JSON.parse(event.data) as Game;
-      if (game.state === 'DONE') {
-        this.currentGame.set(undefined);
-        return;
-      }
       this.currentGame.set(game);
     };
+    eventSource.onerror = (err) => {
+      this.unsubscribeToGameUpdates();
+      console.error(err);
+    }
   }
 
   unsubscribeToGameUpdates() {
-    this.eventSource = undefined;
+    this.currentGame.set(undefined);
   }
 
   async sweetFetch<T, R>(
