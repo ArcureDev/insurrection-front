@@ -1,0 +1,15 @@
+@if (isStreamerMode()) {
+  <div class="flex gap-2">
+    <ins-button [title]="'Copier le lien pour l\'overlay des jetons personnels'" [isGhost]="true" (clicking)="copyUrl()">
+      Jetons d'influence
+    </ins-button>
+    <ins-button [title]="'Copier le lien pour l\'overlay des jetons d\'éclat'" [isGhost]="true" (clicking)="copyUrl()">
+      Jetons d'éclat
+    </ins-button>
+  </div>
+} @else {
+  <div class="flex gap-4">
+    <ins-influence-tokens [player]="player()"/>
+    <ins-shard-tokens [player]="player()"/>
+  </div>
+}

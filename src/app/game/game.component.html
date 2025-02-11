@@ -1,76 +1,128 @@
 @let currGame = game();
-@if (currGame) {
-  <div class="flex flex-col gap-4 py-4">
-    <ins-card [title]="'Identifiant de la partie (À NE PAS MONTRER EN STREAM)'">
-      <ins-button [title]="'Copier l\'identifiant'" (clicking)="copyUrl()">Copier l'identifiant</ins-button>
-    </ins-card>
-
-    <ul class="flex flex-wrap gap-3">
-      @for (player of currGame.players; track $index) {
-        <ins-card [title]="player.name" [color]="player.color">
-          <li class="flex flex-col gap-2 justify-between">
-            <div class="flex justify-between">
-              <div class="flex gap-4">
-                <ins-shard-tokens [player]="player"/>
-                <ins-influence-tokens [player]="player"/>
-              </div>
-            </div>
+<ins-container>
+  @if (currGame) {
+    <div class="flex flex-col gap-12 py-4 h-full">
+      <div class="flex gap-2 items-center justify-between">
+        <div class="flex gap-2">
+          <ins-button [title]="'Copier l\'identifiant'" (clicking)="copyUrl()">
+            <i class="fa-regular fa-copy me-2"></i> ID
+          </ins-button>
+          @if (currGame.players.length > 2) {
             <div class="flex gap-2">
-              <ins-button [title]="'Copier le lien pour l\'overlay des jetons personnels'" [isGhost]="true" (clicking)="copyUrl()">
-                Jetons d'influence
-              </ins-button>
-              <ins-button [title]="'Copier le lien pour l\'overlay des jetons d\'éclat'" [isGhost]="true" (clicking)="copyUrl()">
-                Jetons d'éclat
-              </ins-button>
-              @if (player.id === myPlayer()?.id) {
-                <ins-button [title]="'Changer de couleur'" [isGhost]="true" (clicking)="changeColorDialog.showModal()">
-                  Changer de couleur
+              @if (currGame.state === 'START') {
+                <ins-button [title]="'Distribuer les jetons'" (clicking)="dealTokensDialog.showModal()">
+                  <i class="fa-solid fa-shuffle me-2"></i> Jetons
                 </ins-button>
               }
+              @if (currGame.state === 'ON_GOING') {
+                <ins-button [title]="'Voir'" [routerLink]="authenticatedRoute('game-details')">Voir</ins-button>
+              }
             </div>
-          </li>
-        </ins-card>
+          }
+        </div>
+        <div class="flex gap-2">
+          <ins-button [title]="'Quitter la partie'"  (clicking)="quitGameDialog.showModal()">
+            <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Quitter
+          </ins-button>
+          <ins-button [title]="'Supprimer la partie'" [danger]="true" (clicking)="closeGameDialog.showModal()">
+            <i class="fa-solid fa-trash me-2"></i> Supprimer
+          </ins-button>
+        </div>
+      </div>
+      @if (currGame.players.length <= 2) {
+        <div class="flex gap-2 items-center justify-center">
+          <span class="font-semibold text-2xl">
+            <i class="fa-solid fa-triangle-exclamation"></i> PRÉREQUIS
+          </span>
+          <p>- Il faut au minimum 3 joueur·euse·s pour distribuer les jetons</p>
+        </div>
       }
-    </ul>
+      <label class="inline-flex items-center me-5 cursor-pointer" title="Permet de configurer les overlays pour les différent·e·s joueur·euse·s">
+        <input type="checkbox" class="sr-only peer" [(ngModel)]="isStreamerMode" [checked]="isStreamerMode()">
+        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-1 peer-focus:ring-red-500 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600 dark:peer-checked:bg-red-600"></div>
+        <span class="ms-3 text-sm font-medium dark:text-gray-300">Mode configuration du stream</span>
+      </label>
+      <ul class="flex gap-4 grow">
+        @let currPlayer = myPlayer();
+        @if (currPlayer) {
+          <div class="flex h-full">
+            <ins-card [title]="currPlayer.name" [color]="currPlayer.color">
+              <div class="flex flex-col justify-between h-full">
+                <ins-game-player-buttons [player]="currPlayer" [isStreamerMode]="isStreamerMode()"/>
+                @if (!isStreamerMode()) {
+                  <ins-button [title]="'Changer de couleur'" [isGhost]="true" (clicking)="changeColorDialog.showModal()">
+                    Changer de couleur
+                  </ins-button>
+                }
+              </div>
+            </ins-card>
+          </div>
+        }
+        <div class="flex flex-col gap-4 grow">
+          @for (player of currGame.players | withoutMyPlayer: myPlayer(); track $index) {
+            <ins-card [title]="player.name" [color]="player.color">
+              <li class="flex flex-col gap-2 justify-between">
+                <ins-game-player-buttons [player]="player" [isStreamerMode]="isStreamerMode()"/>
+              </li>
+            </ins-card>
+          }
+        </div>
+      </ul>
+    </div>
+  }
+</ins-container>
 
-    @if (currGame.players.length <= 2) {
-      <ins-card [title]="'Prérequis'">
-        <ul>
-          <li>Il faut au minimum 3 joueur·euse·s pour distribuer les jetons</li>
-        </ul>
-      </ins-card>
-    }
-    <div class="flex gap-2">
-      <ins-button [title]="'Supprimer la partie'" [danger]="true" (clicking)="closeGameDialog.showModal()">Clôturer la partie</ins-button>
-      @if (currGame.players.length > 2 && currGame.state === 'START') {
-        <ins-button [title]="'Distribuer les jetons'" (clicking)="dealTokensDialog.showModal()">Distribuer les jetons</ins-button>
-      }
-      @if (currGame.players.length > 2 && currGame.state === 'ON_GOING') {
-        <ins-button [title]="'Voir'" [routerLink]="authenticatedRoute('game-details')">Voir</ins-button>
-      }
+<dialog #dealTokensDialog>
+  <div class="flex flex-col gap-10 w-[30rem]">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-semibold">Distribuer les jetons</h2>
+      <button title="Fermer la modale" class="cursor-pointer p-4" (click)="dealTokensDialog.close()">x</button>
+    </div>
+    <p>Souhaitez-vous réellement distribuer les jetons ?</p>
+    <p><i class="fa-solid fa-triangle-exclamation text-xl me-1"></i> La partie ne sera plus rejoignable par de nouvelles joueur·euse·s</p>
+    <div class="flex justify-between">
+      <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="dealTokensDialog.close()">Annuler</ins-button>
+      <ins-button [type]="'button'" [title]="'Distribuer les jetons'" (clicking)="dealTokens()">Distribuer</ins-button>
     </div>
   </div>
-}
+</dialog>
 
-<dialog #dealTokensDialog class="p-4 rounded-md border-gray-600 w-60">
-  <p>Souhaitez-vous réellement distribuer les jetons ? La partie ne sera plus rejoignable par de nouvelles joueureuses</p>
-  <div class="flex justify-between">
-    <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="dealTokensDialog.close()">Annuler</ins-button>
-    <ins-button [type]="'button'" [title]="'Distribuer les jetons'" (clicking)="dealTokens()">Distribuer</ins-button>
+<dialog #quitGameDialog>
+  <div class="flex flex-col gap-10 w-[30rem]">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-semibold">Quitter la partie</h2>
+      <button title="Fermer la modale" class="cursor-pointer p-4" (click)="quitGameDialog.close()">x</button>
+    </div>
+    <p>Souhaitez-vous réellement quitter cette partie ?</p>
+    <div class="flex justify-between">
+      <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="quitGameDialog.close()">Annuler</ins-button>
+      <ins-button [type]="'button'" [title]="'Créer'" (clicking)="quitGame()">Quitter</ins-button>
+    </div>
   </div>
 </dialog>
 
-<dialog #closeGameDialog class="p-4 rounded-md border-gray-600 w-60">
-  <p>Souhaitez-vous réellement clôturer cette partie ? D:</p>
-  <div class="flex justify-between">
-    <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="closeGameDialog.close()">Annuler</ins-button>
-    <ins-button [type]="'button'" [title]="'Créer'" (clicking)="closeGame()">Clôturer</ins-button>
+<dialog #closeGameDialog>
+  <div class="flex flex-col gap-10 w-[30rem]">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-semibold">Supprimer la partie</h2>
+      <button title="Fermer la modale" class="cursor-pointer p-4" (click)="closeGameDialog.close()">x</button>
+    </div>
+    <p>Souhaitez-vous réellement supprimer cette partie ?</p>
+    <p>Cela s'appliquera pour tous·tes les joueur·euse·s</p>
+    <div class="flex justify-between">
+      <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="closeGameDialog.close()">Annuler</ins-button>
+      <ins-button [type]="'button'" [title]="'Créer'" (clicking)="closeGame()">Supprimer</ins-button>
+    </div>
   </div>
 </dialog>
 
-<dialog #changeColorDialog class="p-4 rounded-md border-gray-600 w-60">
-  <form class="flex flex-col gap-3" [formGroup]="changeColorForm" (ngSubmit)="changeColor()">
-    <ins-input formControlName="color" [inputType]="'color'" [label]="'Votre couleur'" [placeholder]="'#e8e8e8'"/>
+<dialog #changeColorDialog>
+  <form class="flex flex-col gap-10 w-[30rem]" [formGroup]="changeColorForm" (ngSubmit)="changeColor()">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-semibold">Changer de couleur</h2>
+      <button title="Fermer la modale" class="cursor-pointer p-4" (click)="changeColorDialog.close()">x</button>
+    </div>
+    <ins-input formControlName="color" [inputType]="'color'" [label]="'Nouvelle couleur'" [placeholder]="'#e8e8e8'"/>
     <div class="flex justify-between">
       <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="changeColorDialog.close()">Annuler</ins-button>
       <ins-button [type]="'button'" [title]="'Valider'" (clicking)="changeColor()">Valider</ins-button>

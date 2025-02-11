@@ -1,6 +1,5 @@
-<div class="">
-  <section class="flex flex-col gap-2  border border-gray-50 rounded-xl text-card-foreground shadow p-6 w-96" [style.border-color]="color()">
-    <h1 class="text-md font-bold text-white">{{title()}}</h1>
-    <ng-content/>
-  </section>
-</div>
+<section class="flex flex-col gap-2  border-2 border-gray-200 rounded-xl text-card-foreground shadow p-6 h-full"
+         [style.border-color]="color()">
+  <h1 class="text-xl font-bold text-white">{{title()}}</h1>
+  <ng-content/>
+</section>

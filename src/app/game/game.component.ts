@@ -6,21 +6,23 @@ import {
   inject,
   Injector,
   resource,
-  signal, untracked,
+  signal,
+  untracked,
   viewChild,
 } from '@angular/core';
-import { DefaultComponent } from '../abstract-default.component';
-import { Color, Game, Player } from '../types';
-import { api } from '../http.service';
-import { CardComponent } from '../../atomic-design/card/card.component';
-import { ButtonComponent } from '../../atomic-design/button/button.component';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { authenticatedRoute, PATH_USER } from '../app.routes';
-import { ShardTokensComponent } from '../../atomic-design/tokens/shards/shard-tokens.component';
-import { InfluenceTokensComponent } from '../../atomic-design/tokens/influences/influence-tokens.component';
-import { InputComponent } from '../../atomic-design/input/input.component';
-import { notBlankValidator } from '../utils/validator.utils';
+import {DefaultComponent} from '../abstract-default.component';
+import {Game, Player} from '../types';
+import {api} from '../http.service';
+import {CardComponent} from '../../atomic-design/card/card.component';
+import {ButtonComponent} from '../../atomic-design/button/button.component';
+import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router, RouterLink} from '@angular/router';
+import {authenticatedRoute, PATH_USER, route} from '../app.routes';
+import {InputComponent} from '../../atomic-design/input/input.component';
+import {notBlankValidator} from '../utils/validator.utils';
+import {ContainerComponent} from '../../atomic-design/container/container.component';
+import {WithoutMyPlayerPipe} from '../game-details/without-my-player.pipe';
+import {GamePlayerButtonsComponent} from './game-player-buttons/game-player-buttons.component';
 
 @Component({
   selector: 'ins-game',
@@ -29,18 +31,20 @@ import { notBlankValidator } from '../utils/validator.utils';
     ButtonComponent,
     ReactiveFormsModule,
     RouterLink,
-    ShardTokensComponent,
-    InfluenceTokensComponent,
     InputComponent,
+    ContainerComponent,
+    FormsModule,
+    WithoutMyPlayerPipe,
+    GamePlayerButtonsComponent,
   ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
 })
 export class GameComponent extends DefaultComponent {
-  dealTokensDialog =
-    viewChild<ElementRef<HTMLDialogElement>>('dealTokensDialog');
-  changeColorDialog =
-    viewChild<ElementRef<HTMLDialogElement>>('changeColorDialog');
+  dealTokensDialog = viewChild<ElementRef<HTMLDialogElement>>('dealTokensDialog');
+  changeColorDialog = viewChild<ElementRef<HTMLDialogElement>>('changeColorDialog');
+  quitGameDialog = viewChild<ElementRef<HTMLDialogElement>>('quitGameDialog');
+  closeGameDialog = viewChild<ElementRef<HTMLDialogElement>>('closeGameDialog');
 
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
@@ -55,6 +59,7 @@ export class GameComponent extends DefaultComponent {
 
   game = computed(() => this.httpService.currentGame());
   myPlayer = signal<Player | undefined>(undefined);
+  isStreamerMode = signal(false);
 
   protected readonly authenticatedRoute = authenticatedRoute;
 
@@ -83,6 +88,7 @@ export class GameComponent extends DefaultComponent {
         fetch(api(`games/${this.game()?.id}`), {
           method: 'DELETE',
         }).then(() => {
+          this.closeGameDialog()?.nativeElement.close();
           this.httpService.currentGame.set(undefined);
           this.router.navigate([PATH_USER]);
         });
@@ -123,4 +129,20 @@ export class GameComponent extends DefaultComponent {
       injector: this.injector,
     });
   }
+
+  quitGame() {
+    resource({
+      loader: async () => {
+        await this.httpService.sweetFetchWithNoReturn<void>(
+          api(`games/${this.game()?.id}/players`),
+          'DELETE'
+        );
+        this.httpService.currentGame.set(undefined);
+        this.quitGameDialog()?.nativeElement.close();
+        this.router.navigate([route(PATH_USER)]);
+      },
+      injector: this.injector,
+    });
+  }
+
 }

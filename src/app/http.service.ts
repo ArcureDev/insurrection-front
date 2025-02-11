@@ -1,7 +1,6 @@
-import {effect, inject, Injectable, NgZone, resource, signal, untracked,} from '@angular/core';
+import {effect, Injectable, resource, signal, untracked,} from '@angular/core';
 import {toHttpParams} from './utils/object.utils';
 import {Game, User} from './types';
-import {Observable} from 'rxjs';
 
 export const api = (value: string) => `/api/${value}`;
 export const apiWithParams = <T extends { [key in string]: any }>(
@@ -76,6 +75,23 @@ export class HttpService {
       throw new Error();
     }
     return (await response.json()) as Promise<T>;
+  }
+
+  async sweetFetchWithNoReturn<R>(
+    url: string,
+    method: 'POST' | 'GET' | 'PUT' | 'DELETE' = 'GET',
+    body?: R,
+  ): Promise<void> {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error();
+    }
   }
 
   async logout(): Promise<void> {

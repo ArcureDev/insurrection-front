@@ -1,11 +1,6 @@
-import { Component, forwardRef, OnChanges } from '@angular/core';
-import {
-  FormsModule,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { InputAbstractComponent } from './input.abstract';
+import {Component, forwardRef} from '@angular/core';
+import {FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ReactiveFormsModule,} from '@angular/forms';
+import {InputAbstractComponent} from './input.abstract';
 
 @Component({
   selector: 'ins-input',

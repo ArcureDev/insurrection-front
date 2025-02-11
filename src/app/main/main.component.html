@@ -1,7 +1,7 @@
-<section class="absolute top-0 bottom-0 w-56 left-0 bg-primary p-4 text-white">
-  <div class="h-full flex flex-col justify-between">
-    <div class="flex flex-col items-center">
-      <h1 class="text-center text-xl">INSURRECTION</h1>
+<div class="my-container">
+  <nav class="flex justify-between items-center p-4 border-b border-gray-200">
+    <div class="flex gap-6 items-center">
+      <h1 class="text-center text-xl font-semibold">INSURRECTION</h1>
       @if (currentGame()) {
         <ins-button
           [type]="'button'" [title]="'Rejoindre ma partie'" [fullWidth]="true" [routerLink]="authenticatedRoute(PATH_GAME)">
@@ -16,33 +16,47 @@
         </ins-button>
       }
     </div>
-    <div class="flex flex-col gap-2 items-center">
+    <div class="flex gap-6 items-center">
+      <a href="https://electric-goat.net/preorders/insurrection" target="_blank">Le jeu</a>
       <ins-button [type]="'button'" [title]="'Se déconnecter'" [fullWidth]="true" (clicking)="logout()">Se déconnecter</ins-button>
     </div>
-  </div>
-</section>
-<section class="absolute top-0 bottom-0 left-56 right-0 p-4 bg-transparent">
-  <router-outlet/>
-  <dialog #joinGameDialog class="p-4 rounded-md border-gray-600 w-96">
-    <form class="flex flex-col gap-3" [formGroup]="joinGameForm" (ngSubmit)="joinGame()">
+  </nav>
+  <section>
+      <router-outlet/>
+  </section>
+</div>
+
+<dialog #joinGameDialog>
+  <form class="flex flex-col gap-10 w-96" [formGroup]="joinGameForm" (ngSubmit)="joinGame()">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-semibold">Rejoindre une partie</h2>
+      <button title="Fermer la modale" class="cursor-pointer p-4" (click)="joinGameDialog.close()">x</button>
+    </div>
+    <div class="flex flex-col gap-4 p-4">
       <ins-input formControlName="id" [inputType]="'password'" [label]="'Identifiant de la partie'" [placeholder]="'911bb8c8-e270-4dfb-ba42-9051e64ab7b0'"/>
       <ins-input formControlName="name" [inputType]="'text'" [label]="'Votre pseudo'" [placeholder]="'BgDu75'"/>
       <ins-input formControlName="color" [inputType]="'color'" [label]="'Votre couleur'" [placeholder]="'#e8e8e8'"/>
-      <div class="flex justify-between">
-        <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="joinGameDialog.close()">Annuler</ins-button>
-        <ins-button [type]="'submit'" [title]="'Rejoindre'">Rejoindre</ins-button>
-      </div>
-    </form>
-  </dialog>
+    </div>
+    <div class="flex justify-between">
+      <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="joinGameDialog.close()">Annuler</ins-button>
+      <ins-button [type]="'submit'" [title]="'Rejoindre'">Rejoindre</ins-button>
+    </div>
+  </form>
+</dialog>
 
-  <dialog #createGameDialog class="p-4 rounded-md border-gray-600 w-96">
-    <form class="flex flex-col gap-3" [formGroup]="createGameForm" (ngSubmit)="createGame()">
+<dialog #createGameDialog>
+  <form class="flex flex-col gap-10 w-96" [formGroup]="createGameForm" (ngSubmit)="createGame()">
+    <div class="flex justify-between items-center">
+      <h2 class="text-2xl font-semibold">Rejoindre une partie</h2>
+      <button title="Fermer la modale" class="cursor-pointer p-4" (click)="createGameDialog.close()">x</button>
+    </div>
+    <div class="flex flex-col gap-4 p-4">
       <ins-input formControlName="name" [inputType]="'text'" [label]="'Votre pseudo'" [placeholder]="'BgDu75'"/>
       <ins-input formControlName="color" [inputType]="'color'" [label]="'Votre couleur'" [placeholder]="'#e8e8e8'"/>
-      <div class="flex justify-between">
-        <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="createGameDialog.close()">Annuler</ins-button>
-        <ins-button [type]="'submit'" [title]="'Créer'">Créer</ins-button>
-      </div>
-    </form>
-  </dialog>
-</section>
+    </div>
+    <div class="flex justify-between">
+      <ins-button [type]="'button'" [title]="'Annuler'" [outline]="true" (clicking)="createGameDialog.close()">Annuler</ins-button>
+      <ins-button [type]="'submit'" [title]="'Créer'">Créer</ins-button>
+    </div>
+  </form>
+</dialog>
