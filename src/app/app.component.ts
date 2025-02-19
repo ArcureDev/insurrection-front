@@ -1,10 +1,6 @@
-import { Component, inject, resource } from '@angular/core';
-import { HttpService } from './http.service';
-import { RouterOutlet } from '@angular/router';
-
-type Toto = {
-  name: string;
-};
+import {Component, inject} from '@angular/core';
+import {HttpService} from './http.service';
+import {RouterOutlet} from '@angular/router';
 
 @Component({
   selector: 'ins-root',
@@ -13,14 +9,4 @@ type Toto = {
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  private readonly httpService = inject(HttpService);
-
-  toto() {
-    const r = resource<Toto, void>({
-      loader: async ({ request }) => {
-        return this.httpService.sweetFetch('api/users');
-      },
-    });
-    const a = r.value();
-  }
 }

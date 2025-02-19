@@ -1,8 +1,9 @@
-import {Component, effect, inject, Injector, input, resource, signal, untracked} from '@angular/core';
+import {Component, effect, inject, input, signal, untracked} from '@angular/core';
 import {HttpService} from '../../../app/http.service';
 import {Token, TokenType} from '../../../app/types';
 import {DefaultTokensComponent} from '../../tokens/default-tokens.component';
 import {ActivatedRoute} from '@angular/router';
+import {isNotNullOrUndefined} from '../../../app/utils/object.utils';
 
 @Component({
   selector: 'ins-overlay-tokens',
@@ -14,11 +15,15 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class OverlayTokensComponent {
 
-  playerId = input<number | undefined>(undefined);
+  gameId = input(undefined, {
+    transform: (it: number | undefined) => (isNotNullOrUndefined(it) ? Number(it) : undefined)
+  });
+  playerId = input(undefined, {
+    transform: (it: number | undefined) => (isNotNullOrUndefined(it) ? Number(it) : undefined)
+  });
 
-  private readonly httpService = inject(HttpService);
-  private readonly injector = inject(Injector);
   private readonly router = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
 
   tokens = signal<Token[]>([]);
   type = signal<TokenType | undefined>(undefined);
@@ -29,17 +34,21 @@ export class OverlayTokensComponent {
     })
 
     effect(() => {
+      const gameId = this.gameId()
+      if (!gameId) return
+
+      this.httpService.coucouGame(gameId)
+      this.httpService.subscribeToGameUpdates(gameId)
+    });
+
+    effect(() => {
+      const game = this.httpService.currentGame();
       const playerId = this.playerId();
-      if (!playerId) return;
       untracked(() => {
-        resource({
-          loader: async () => {
-            const tokens = await this.httpService.sweetFetch<Token[], void>(`/api/players/${this.playerId()}/tokens`)
-            this.tokens.set(tokens);
-          },
-          injector: this.injector
-        });
-      });
+        const currPlayer = game?.players.find(it => it.id === playerId)
+        if (!currPlayer) return;
+        this.tokens.set(currPlayer.playableTokens)
+      })
     });
   }
 

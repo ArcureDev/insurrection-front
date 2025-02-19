@@ -54,7 +54,7 @@
           <div class="flex h-full">
             <ins-card [title]="currPlayer.name" [subtitle]="currPlayer.role" [color]="currPlayer.color">
               <div class="flex flex-col justify-between h-full">
-                <ins-game-player-buttons [player]="currPlayer" [isStreamerMode]="isStreamerMode()"/>
+                <ins-game-player-buttons [player]="currPlayer" [isStreamerMode]="isStreamerMode()" [gameId]="currGame.id"/>
                 @if (!isStreamerMode()) {
                   <div class="flex flex-col gap-2">
                     <ins-button [title]="'Choisir son rôle'" [isGhost]="true" (clicking)="isPickingRole.set(true)">
@@ -76,7 +76,7 @@
             @for (player of currGame.players | withoutMyPlayer: myPlayer(); track $index) {
               <ins-card [title]="player.name" [subtitle]="player.role" [color]="player.color">
                 <li class="flex flex-col gap-2 justify-between">
-                  <ins-game-player-buttons [player]="player" [isStreamerMode]="isStreamerMode()"/>
+                  <ins-game-player-buttons [player]="player" [isStreamerMode]="isStreamerMode()" [gameId]="currGame.id"/>
                 </li>
               </ins-card>
             }

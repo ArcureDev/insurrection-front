@@ -9,7 +9,7 @@ export const PATH_LOGIN = 'login';
 export const PATH_USER = 'user';
 export const PATH_GAME = 'game';
 export const PATH_GAME_DETAILS = 'game-details';
-export const PATH_PLAYER = 'players';
+export const PATH_PLAYER = 'player';
 
 export const routes: Routes = [
   {
@@ -30,7 +30,7 @@ export const routes: Routes = [
       import('../app/login/login.component').then((c) => c.LoginComponent),
   },
   {
-    path: `${PATH_PLAYER}/:playerId`,
+    path: `${PATH_GAME}/:gameId/${PATH_PLAYER}/:playerId`,
     loadComponent: () =>
       import('../atomic-design/overlay/overlay-tokens/overlay-tokens.component').then(
         (c) => c.OverlayTokensComponent

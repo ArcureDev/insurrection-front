@@ -123,7 +123,7 @@ export class MainComponent extends DefaultComponent {
     dialogElementRef?: ElementRef<HTMLDialogElement>,
   ) {
     dialogElementRef?.nativeElement.close();
-    this.httpService.subscribeToGameUpdates();
+    this.httpService.subscribeToGameUpdates(game.id);
     this.httpService.currentGame.set(game);
     this.createGameForm.reset();
     this.joinGameForm.reset();

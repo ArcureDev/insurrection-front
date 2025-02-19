@@ -21,6 +21,7 @@ export class HttpService {
   });
   currentGame = signal<Game | undefined>(undefined);
   isAuthenticated = signal<boolean | undefined>(undefined);
+  hasSub = signal(false)
 
   constructor() {
     this.currentGame = this.currentGameResource.value;
@@ -32,19 +33,24 @@ export class HttpService {
 
     effect(() => {
       const isAuthenticated = this.isAuthenticated();
+      if (!isAuthenticated) return;
+      this.currentGameResource.reload();
+    });
+
+    effect(() => {
+      if (this.hasSub()) return;
+      const gameId = this.currentGame()?.id;
+      if (!gameId) return;
+
       untracked(() => {
-        if (!isAuthenticated) {
-          this.unsubscribeToGameUpdates();
-          return;
-        }
         this.currentGameResource.reload();
-        this.subscribeToGameUpdates();
+        this.subscribeToGameUpdates(gameId);
       });
     });
   }
 
-  subscribeToGameUpdates() {
-    const eventSource = new EventSource('/api/games/sse');
+  subscribeToGameUpdates(gameId: number) {
+    const eventSource = new EventSource(`/api/games/sse/${gameId}`);
     eventSource.onmessage = (event: MessageEvent<string>) => {
       const game = JSON.parse(event.data) as Game;
       this.currentGame.set(game);
@@ -53,10 +59,12 @@ export class HttpService {
       this.unsubscribeToGameUpdates();
       console.error(err);
     }
+    this.hasSub.set(true)
   }
 
   unsubscribeToGameUpdates() {
     this.currentGame.set(undefined);
+    this.hasSub.set(false)
   }
 
   async sweetFetch<T, R>(
@@ -92,6 +100,12 @@ export class HttpService {
     if (!response.ok) {
       throw new Error();
     }
+  }
+
+  coucouGame(gameId: number) {
+    this.sweetFetch<Game, void>(`/api/games/${gameId}`).then((game) => {
+      this.currentGame.set(game)
+    })
   }
 
   async logout(): Promise<void> {
