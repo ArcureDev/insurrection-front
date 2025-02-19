@@ -1,23 +1,21 @@
 import {Component, computed, effect, inject, Injector, resource, signal,} from '@angular/core';
 import {DefaultComponent} from '../abstract-default.component';
-import {ShardTokensComponent} from '../../atomic-design/tokens/shards/shard-tokens.component';
 import {FlagColor, Game, Player} from '../types';
 import {TokenComponent} from '../../atomic-design/tokens/token/token.component';
-import {InfluenceTokensComponent} from '../../atomic-design/tokens/influences/influence-tokens.component';
 import {ButtonComponent} from '../../atomic-design/button/button.component';
 import {api} from '../http.service';
 import {WithoutMyPlayerPipe} from './without-my-player.pipe';
 import {FlagComponent} from '../../atomic-design/flag/flag.component';
+import {DefaultTokensComponent} from '../../atomic-design/tokens/default-tokens.component';
 
 @Component({
   selector: 'ins-game-details',
   imports: [
-    ShardTokensComponent,
     TokenComponent,
-    InfluenceTokensComponent,
     ButtonComponent,
     WithoutMyPlayerPipe,
     FlagComponent,
+    DefaultTokensComponent,
   ],
   templateUrl: './game-details.component.html',
   styleUrl: './game-details.component.scss',

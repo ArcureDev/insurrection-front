@@ -45,8 +45,8 @@
       @for (player of game()?.players | withoutMyPlayer: myPlayer() ; track player.id) {
         <div class="custom-shadow border border-gray-100 rounded-lg p-4 flex flex-col gap-2 w-60 items-center">
           <span class="text-center" [style.color]="player.color">{{player.name}}</span>
-          <ins-shard-tokens [player]="player"/>
-          <ins-influence-tokens [player]="player"/>
+          <ins-default-tokens [tokens]="player.playableTokens" [type]="'SHARD'"/>
+          <ins-default-tokens [tokens]="player.myTokens" [type]="'INFLUENCE'"/>
           @if (canGiveInfluenceToken(player.id)) {
             <ins-button class="mt-auto"
                         [type]="'button'"
@@ -66,10 +66,10 @@
 <div class="absolute bottom-0 left-0 right-0 p-2 h-16 shadow-inner flex justify-between items-center">
   <div class="flex gap-4 max-w-[50%]">
     <span class="text-lg truncate" [style.color]="myPlayer()?.color"> {{myPlayer()?.name}}</span>
-  </div>
+  </div>&
   <div class="flex gap-2">
-    <ins-shard-tokens [player]="myPlayer()"/>
-    <ins-influence-tokens [player]="myPlayer()"/>
+    <ins-default-tokens [tokens]="myPlayer()?.playableTokens ?? []" [type]="'SHARD'"/>
+    <ins-default-tokens [tokens]="myPlayer()?.myTokens ?? []" [type]="'INFLUENCE'"/>
   </div>
   <div class="flex gap-2">
   </div>
