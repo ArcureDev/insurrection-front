@@ -1,5 +1,8 @@
 <section class="flex flex-col gap-2  border-2 border-gray-200 rounded-xl text-card-foreground shadow p-6 h-full"
          [style.border-color]="color()">
-  <h1 class="text-xl font-bold text-white">{{title()}}</h1>
+  <h1 class="text-xl font-bold">{{title()}}</h1>
+  @if (subtitle()) {
+    <h2 class="text-md font-semi-bold">{{subtitle()}}</h2>
+  }
   <ng-content/>
 </section>

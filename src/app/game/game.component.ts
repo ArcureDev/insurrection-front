@@ -22,7 +22,8 @@ import {InputComponent} from '../../atomic-design/input/input.component';
 import {notBlankValidator} from '../utils/validator.utils';
 import {ContainerComponent} from '../../atomic-design/container/container.component';
 import {WithoutMyPlayerPipe} from '../game-details/without-my-player.pipe';
-import {GamePlayerButtonsComponent} from './game-player-buttons/game-player-buttons.component';
+import {GamePlayerButtonsComponent} from './player-buttons/game-player-buttons.component';
+import {GameRolePickerComponent} from './game-role-picker/game-role-picker.component';
 
 @Component({
   selector: 'ins-game',
@@ -36,6 +37,7 @@ import {GamePlayerButtonsComponent} from './game-player-buttons/game-player-butt
     FormsModule,
     WithoutMyPlayerPipe,
     GamePlayerButtonsComponent,
+    GameRolePickerComponent,
   ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
@@ -60,6 +62,7 @@ export class GameComponent extends DefaultComponent {
   game = computed(() => this.httpService.currentGame());
   myPlayer = signal<Player | undefined>(undefined);
   isStreamerMode = signal(false);
+  isPickingRole= signal(false);
 
   protected readonly authenticatedRoute = authenticatedRoute;
 
@@ -145,4 +148,14 @@ export class GameComponent extends DefaultComponent {
     });
   }
 
+  getRoles() {
+    const gameId = this.game()?.id;
+    if (!gameId) return;
+    resource({
+      loader: async () => {
+        await this.httpService.sweetFetch(`/api/games/${gameId}/roles`);
+      },
+      injector: this.injector,
+    });
+  }
 }

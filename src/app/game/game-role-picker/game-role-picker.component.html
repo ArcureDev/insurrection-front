@@ -1,0 +1,20 @@
+<ins-button [title]="'Valider l\'ordre des rôles'" (clicking)="saveRolesOrder()">Valider l'ordre des rôles</ins-button>
+<div class="grid grid-rows-8">
+  <h1 class="row-span-4 text-center">Ordre</h1>
+  <h1 class="row-span-4 text-center">Trajectoire</h1>
+</div>
+<ul #roles class="grid grid-rows-8 gap-2">
+  @for (role of playerRoles(); track role) {
+    <li [id]="role" class="flex gap-2 items-center justify-between" draggable="true">
+      <span class="ms-2 cursor-pointer">{{role}}</span>
+      <div class="flex gap-2">
+        <ins-button [title]="'Voir la description du role' + role" (clicking)="selectRole(role)">
+          <i class="fa-regular fa-eye"></i>
+        </ins-button>
+      </div>
+    </li>
+  }
+</ul>
+<div class="grid grid-rows-8">
+  <p class="row-span-8">{{description()}}</p>
+</div>

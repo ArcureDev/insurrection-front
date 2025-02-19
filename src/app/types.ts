@@ -5,6 +5,16 @@ export type Credentials = {
 
 export type GameState = 'START' | 'ON_GOING' | 'DONE';
 export type TokenType = 'SHARD' | 'INFLUENCE';
+export const playerRoles: PlayerRole[] = [
+  'POUVOIR',
+  'ORDRE',
+  'ECHO',
+  'PEUPLE',
+  'PAMPHLET',
+  'MOLOTOV',
+  'ECUSSON',
+  'ETOILE'
+];
 export type PlayerRole =
   | 'POUVOIR'
   | 'ORDRE'
@@ -26,6 +36,7 @@ export type Player = PlayerPayload & {
   playableTokens: Token[];
   myTokens: Token[];
   me: boolean;
+  roles: PlayerRole[];
 };
 
 export type SimplePlayer = PlayerPayload & {
@@ -37,7 +48,7 @@ export type Color = {
 };
 
 export type Game = {
-  id: string;
+  id: number;
   state: GameState;
   players: Player[];
   nbAvailableShardTokens: number;
