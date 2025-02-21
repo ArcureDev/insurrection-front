@@ -1,76 +1,142 @@
-<div class="absolute top-0 bottom-16 left-0 right-0 flex flex-col justify-between overflow-auto">
-  <div class="flex flex-col gap-3 p-2">
-    <div class="flex gap-1 items-center self-center">
-      <div class="custom-shadow border border-gray-100 rounded-lg p-4 flex flex-col gap-2 w-60 items-center">
-        <div class="flex gap-1">
-        <ins-flag [flagColor]="'RED'"/>
-          x{{nbRedFlags()}}
-        </div>
-        <ins-button class="flex gap-2" [type]="'button'" [title]="'Donner un jeton'" [isGhost]="true"
-                    (clicking)="addFlag('RED')">
-          Lancer
-        </ins-button>
-      </div>
-      <div class="custom-shadow border border-gray-100 rounded-lg p-4 flex flex-col gap-2 w-60 items-center">
+<div class="grid grid-cols-3 gap-2 h-full p-2">
+  <div class="grid grid-rows-3 gap-2">
+    <div></div>
+    <ng-container *ngTemplateOutlet="players; context: {players: leftPlayers()}"/>
+    <div></div>
+  </div>
+  <div class="grid grid-rows-3 gap-2">
+    <ng-container *ngTemplateOutlet="players; context: {players: topPlayers()}"/>
+    <ng-container *ngTemplateOutlet="global"/>
+    <ng-container *ngTemplateOutlet="players; context: {players: bottomPlayers()}"/>
+  </div>
+  <div class="grid grid-rows-3 gap-2">
+    <div></div>
+    <ng-container *ngTemplateOutlet="players; context: {players: rightPlayers()}"/>
+    <div></div>
+  </div>
+</div>
+
+<ng-template #players let-players="players">
+  <div class="flex gap-2">
+    @for (player of players; track player.id) {
+      <ins-card class="grow" [title]="player.name" [subtitle]="player.role" [color]="player.color">
         <div class="flex gap-2">
-          {{game()?.nbAvailableShardTokens}}
-          <ins-token [size]="22" [type]="'SHARD'"/>
+          <ins-default-tokens [type]="'SHARD'" [tokens]="player.playableTokens"/>
+          <ins-default-tokens [type]="'INFLUENCE'" [tokens]="player.playableTokens"/>
         </div>
         <div class="flex gap-2">
-          @if (canGiveShardToken()) {
-            <ins-button class="flex gap-2" [type]="'button'" [title]="'Donner un jeton'" [isGhost]="true"
-                        (clicking)="giveShardToken()">
-              Donner
+          @if (myPlayer()?.id !== player.id) {
+            <ins-button [title]="'Donner un jeton d\'influence'" (clicking)="giveToken(player)">
+              <i class="fas fa-donate"></i>
             </ins-button>
           }
-          @if ((game()?.nbAvailableShardTokens) ?? 0 > 0) {
-            <ins-button [type]="'button'" [title]="'Récupérer un jeton'" [isGhost]="true" (clicking)="addShardToken()">
-              Subir
-            </ins-button>
-          }
         </div>
-      </div>
-      <div class="custom-shadow border border-gray-100 rounded-lg p-4 flex flex-col gap-2 w-60 items-center">
-        <div class="flex gap-1">
-          <ins-flag [flagColor]="'BLACK'"/>
-          x{{nbBlackFlags()}}
-        </div>
-        <ins-button class="flex gap-2" [type]="'button'" [title]="'Donner un jeton'" [isGhost]="true"
-                    (clicking)="addFlag('BLACK')">
-          Lancer
+      </ins-card>
+    }
+  </div>
+</ng-template>
+
+<ng-template #global>
+  <div class="flex flex-col gap-2 justify-between p-4">
+    <div class="grid grid-cols-3">
+      <ng-container *ngTemplateOutlet="flags"/>
+      <ng-container *ngTemplateOutlet="tokens"/>
+      <ng-container *ngTemplateOutlet="buttons"/>
+    </div>
+    <ng-container *ngTemplateOutlet="votes"/>
+  </div>
+</ng-template>
+
+<ng-template #flags>
+  <div class="flex gap-2">
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-1 items-center">
+        <ins-button [title]="'Stoppons le sujet'" (clicking)="addFlag('RED')">
+          <ins-flag [flagColor]="'RED'"/>
         </ins-button>
+        x{{nbRedFlags()}}
       </div>
     </div>
-    <div class="flex flex-wrap self-center gap-3">
-      @for (player of game()?.players | withoutMyPlayer: myPlayer() ; track player.id) {
-        <div class="custom-shadow border border-gray-100 rounded-lg p-4 flex flex-col gap-2 w-60 items-center">
-          <span class="text-center" [style.color]="player.color">{{player.name}}</span>
-          <ins-default-tokens [tokens]="player.playableTokens" [type]="'SHARD'"/>
-          <ins-default-tokens [tokens]="player.myTokens" [type]="'INFLUENCE'"/>
-          @if (canGiveInfluenceToken(player.id)) {
-            <ins-button class="mt-auto"
-                        [type]="'button'"
-                        [title]="'Donner un jeton'"
-                        [isGhost]="true"
-                        (clicking)="giveToken(player)">
-              Donner un jeton
-            </ins-button>
-          }
-        </div>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-1 items-center">
+        <ins-button [title]="'Évitons le sujet'" (clicking)="addFlag('BLACK')">
+          <ins-flag [flagColor]="'BLACK'"/>
+        </ins-button>
+        x{{nbBlackFlags()}}
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #tokens>
+  <div class="flex flex-col gap-2 items-center">
+    <div class="flex gap-2 text-center">
+      @if (canGiveShardToken()) {
+        <ins-button [title]="'Donner un jeton'" (clicking)="giveShardToken()">
+          <i class="fas fa-donate"></i>
+        </ins-button>
+      }
+      @if ((game()?.nbAvailableShardTokens) ?? 0 > 0) {
+        <ins-button [title]="'Récupérer un jeton (SUBIR)'" (clicking)="addShardToken()">
+          <i class="fas fa-sad-cry"></i>
+        </ins-button>
       }
     </div>
+    <div class="flex gap-2">
+      {{game()?.nbAvailableShardTokens}}
+      <ins-token [size]="22" [type]="'SHARD'"/>
+    </div>
   </div>
-  <div class="flex justify-center p-2">
+</ng-template>
+
+<ng-template #buttons>
+  <div class="justify-end flex gap-2">
+    <ins-button [title]="'On peut conclure'" (clicking)="addVote()">
+      <i class="far fa-hourglass"></i>
+    </ins-button>
+    <ins-button [title]="'Reset'" (clicking)="resetVotes()">
+      <i class="fas fa-redo-alt"></i>
+    </ins-button>
   </div>
-</div>
-<div class="absolute bottom-0 left-0 right-0 p-2 h-16 shadow-inner flex justify-between items-center">
-  <div class="flex gap-4 max-w-[50%]">
-    <span class="text-lg truncate" [style.color]="myPlayer()?.color"> {{myPlayer()?.name}}</span>
-  </div>&
-  <div class="flex gap-2">
-    <ins-default-tokens [tokens]="myPlayer()?.playableTokens ?? []" [type]="'SHARD'"/>
-    <ins-default-tokens [tokens]="myPlayer()?.myTokens ?? []" [type]="'INFLUENCE'"/>
-  </div>
-  <div class="flex gap-2">
-  </div>
-</div>
+</ng-template>
+
+<ng-template #votes>
+  @if ((game()?.nbVotes ?? 0) > 0) {
+    <p>{{game()?.nbVotes}} personne(s) valide(nt) la scène</p>
+  }
+</ng-template>
+
+<!--<div class="flex flex-col gap-3 p-2">-->
+
+<!--  <div class="flex flex-wrap self-center gap-3">-->
+<!--    @for (player of game()?.players | withoutMyPlayer: myPlayer() ; track player.id) {-->
+<!--      <div class="custom-shadow border border-gray-100 rounded-lg p-4 flex flex-col gap-2 w-60 items-center">-->
+<!--        <span class="text-center" [style.color]="player.color">{{player.name}}</span>-->
+<!--        <ins-default-tokens [tokens]="player.playableTokens" [type]="'SHARD'"/>-->
+<!--        <ins-default-tokens [tokens]="player.myTokens" [type]="'INFLUENCE'"/>-->
+<!--        @if (canGiveInfluenceToken(player.id)) {-->
+<!--          <ins-button class="mt-auto"-->
+<!--                      [type]="'button'"-->
+<!--                      [title]="'Donner un jeton'"-->
+<!--                      [isGhost]="true"-->
+<!--                      (clicking)="giveToken(player)">-->
+<!--            Donner un jeton-->
+<!--          </ins-button>-->
+<!--        }-->
+<!--      </div>-->
+<!--    }-->
+<!--  </div>-->
+<!--</div>-->
+<!--<div class="flex justify-center p-2">-->
+<!--</div>-->
+<!--<div class="absolute bottom-0 left-0 right-0 p-2 h-16 shadow-inner flex justify-between items-center">-->
+<!--  <div class="flex gap-4 max-w-[50%]">-->
+<!--    <span class="text-lg truncate" [style.color]="myPlayer()?.color"> {{myPlayer()?.name}}</span>-->
+<!--  </div>&-->
+<!--  <div class="flex gap-2">-->
+<!--    <ins-default-tokens [tokens]="myPlayer()?.playableTokens ?? []" [type]="'SHARD'"/>-->
+<!--    <ins-default-tokens [tokens]="myPlayer()?.myTokens ?? []" [type]="'INFLUENCE'"/>-->
+<!--  </div>-->
+<!--  <div class="flex gap-2">-->
+<!--  </div>-->
+<!--</div>-->

@@ -1,7 +1,7 @@
 <ins-centered-container>
   <h1 class="text-center text-xl text-white">Inscription</h1>
   <form class="flex flex-col gap-3" [formGroup]="form" (ngSubmit)="register()">
-    <ins-input formControlName="username" [label]="'Email'" [placeholder]="'coucou@coucou.coucou'" [inputType]="'email'" />
+    <ins-input formControlName="username" [label]="'Pseudo'" [placeholder]="'Toto'" [inputType]="'text'" />
     <ins-input formControlName="password" [label]="'Mot de passe'" [placeholder]="'coucou'" [inputType]="'password'" />
     <div class="flex justify-between">
       <ins-button [type]="'button'" [title]="'Se connecter'" [outline]="true" [routerLink]="route(PATH_LOGIN)">Se connecter</ins-button>

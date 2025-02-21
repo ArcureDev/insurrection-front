@@ -52,6 +52,7 @@ export type Game = {
   state: GameState;
   players: Player[];
   nbAvailableShardTokens: number;
+  nbVotes: number;
   url: string;
   flags: Flag[];
 };

@@ -1,6 +1,9 @@
-import {effect, Injectable, resource, signal, untracked,} from '@angular/core';
+import {effect, inject, Injectable, OnDestroy, resource, signal, untracked,} from '@angular/core';
 import {toHttpParams} from './utils/object.utils';
 import {Game, User} from './types';
+import {Router} from '@angular/router';
+import {PATH_GAME_DETAILS} from './app.routes';
+import {webSocket} from 'rxjs/webSocket';
 
 export const api = (value: string) => `/api/${value}`;
 export const apiWithParams = <T extends { [key in string]: any }>(
@@ -14,8 +17,11 @@ export const apiWithParams = <T extends { [key in string]: any }>(
 @Injectable({
   providedIn: 'root',
 })
-export class HttpService {
+export class HttpService implements OnDestroy {
 
+  private readonly router = inject(Router)
+
+  eventSource?: EventSource;
   currentGameResource = resource({
     loader: () => this.sweetFetch<Game, void>(api('games/me/current')),
   });
@@ -43,28 +49,25 @@ export class HttpService {
       if (!gameId) return;
 
       untracked(() => {
-        this.currentGameResource.reload();
         this.subscribeToGameUpdates(gameId);
       });
     });
   }
 
   subscribeToGameUpdates(gameId: number) {
-    const eventSource = new EventSource(`/api/games/sse/${gameId}`);
-    eventSource.onmessage = (event: MessageEvent<string>) => {
-      const game = JSON.parse(event.data) as Game;
-      this.currentGame.set(game);
-    };
-    eventSource.onerror = (err) => {
-      this.unsubscribeToGameUpdates();
-      console.error(err);
-    }
-    this.hasSub.set(true)
-  }
+    const subject = webSocket<Game>(`ws://localhost:8080/ws`);
 
-  unsubscribeToGameUpdates() {
-    this.currentGame.set(undefined);
-    this.hasSub.set(false)
+    const messageStream$ = subject.multiplex(
+      () => (gameId),  // Subscribe message
+      () => (gameId), // Unsubscribe message
+      game => game.id === gameId
+    );
+
+    messageStream$.subscribe({
+      next: game => this.currentGame.set(game),
+      error: err => console.error(err),
+      complete: () => console.log("Connexion fermée")
+    });
   }
 
   async sweetFetch<T, R>(
@@ -102,7 +105,7 @@ export class HttpService {
     }
   }
 
-  coucouGame(gameId: number) {
+  syncGame(gameId: number) {
     this.sweetFetch<Game, void>(`/api/games/${gameId}`).then((game) => {
       this.currentGame.set(game)
     })
@@ -114,5 +117,9 @@ export class HttpService {
     }).then(() => {
       this.isAuthenticated.set(false);
     });
+  }
+
+  ngOnDestroy() {
+
   }
 }

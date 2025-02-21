@@ -1,5 +1,5 @@
 @let size = 25;
-<div class="flex flex-wrap" [title]="title()">
+<div class="flex flex-wrap text-black" [title]="title()">
   @for (token of displayedTokens().slice(0, 5); track $index) {
     <ins-token [size]="size" [color]="type() === 'SHARD' ? '#000' : token.owner?.color" [type]="token.type"/>
   }

@@ -1,47 +1,68 @@
-import {Component, computed, effect, inject, Injector, resource, signal,} from '@angular/core';
+import {Component, computed, effect, inject, Injector, resource, signal, untracked,} from '@angular/core';
 import {DefaultComponent} from '../abstract-default.component';
 import {FlagColor, Game, Player} from '../types';
 import {TokenComponent} from '../../atomic-design/tokens/token/token.component';
 import {ButtonComponent} from '../../atomic-design/button/button.component';
 import {api} from '../http.service';
-import {WithoutMyPlayerPipe} from './without-my-player.pipe';
 import {FlagComponent} from '../../atomic-design/flag/flag.component';
 import {DefaultTokensComponent} from '../../atomic-design/tokens/default-tokens.component';
+import {CardComponent} from '../../atomic-design/card/card.component';
+import {NgTemplateOutlet} from '@angular/common';
 
 @Component({
   selector: 'ins-game-details',
   imports: [
     TokenComponent,
     ButtonComponent,
-    WithoutMyPlayerPipe,
     FlagComponent,
     DefaultTokensComponent,
+    CardComponent,
+    NgTemplateOutlet,
   ],
   templateUrl: './game-details.component.html',
   styleUrl: './game-details.component.scss',
 })
 export class GameDetailsComponent extends DefaultComponent {
-  injector = inject(Injector);
+  private readonly injector = inject(Injector);
 
   game = computed(() => this.httpService.currentGame())
 
-  myPlayer = signal<Player | undefined>(undefined);
   nbRedFlags = signal<number>(0);
   nbBlackFlags = signal<number>(0);
+  topPlayers = signal<Player[]>([]);
+  rightPlayers = signal<Player[]>([]);
+  bottomPlayers = signal<Player[]>([]);
+  leftPlayers = signal<Player[]>([]);
+
+  myPlayer = computed(() => this.game()?.players.find((player) => player.me))
+  canGiveShardToken = computed(() => {
+    const myPlayerId = this.myPlayer()?.id
+    if (!myPlayerId) return false;
+    const myPlayer = this.game()?.players.find(it => it.id === myPlayerId)
+    if (!myPlayer) return false;
+    return myPlayer.playableTokens.some((token) => token.type === 'SHARD')
+  });
 
   constructor() {
     super();
     effect(() => {
       const game = this.game();
       if (!game) return;
-      this.myPlayer.set(game.players.find((player) => player.me));
-      this.nbRedFlags.set(
-        game.flags.filter((flag) => flag.color === 'RED').length,
-      );
-      this.nbBlackFlags.set(
-        game.flags.filter((flag) => flag.color === 'BLACK').length,
-      );
+      untracked(() => this.init(game))
     });
+  }
+
+  private init(game: Game) {
+    this.nbRedFlags.set(
+      game.flags.filter((flag) => flag.color === 'RED').length,
+    );
+    this.nbBlackFlags.set(
+      game.flags.filter((flag) => flag.color === 'BLACK').length,
+    );
+    this.topPlayers.set(game.players.filter(it => it.id % 4 === 0))
+    this.rightPlayers.set(game.players.filter(it => it.id % 4 === 1))
+    this.bottomPlayers.set(game.players.filter(it => it.id % 4 === 2))
+    this.leftPlayers.set(game.players.filter(it => it.id % 4 === 3))
   }
 
   giveToken(player: Player) {
@@ -70,24 +91,6 @@ export class GameDetailsComponent extends DefaultComponent {
     });
   }
 
-  canGiveShardToken(): boolean {
-    return (
-      this.myPlayer()?.playableTokens.some((token) => token.type === 'SHARD') ??
-      false
-    );
-  }
-
-  canGiveInfluenceToken(playerId: number): boolean {
-    return (
-      this.myPlayer()
-        ?.playableTokens.map((token) => token.owner)
-        .filter((owner) => owner !== undefined && owner !== null)
-        .some(
-          (owner) => owner.id === playerId || owner.id === this.myPlayer()?.id,
-        ) ?? false
-    );
-  }
-
   addShardToken() {
     resource({
       loader: async () => {
@@ -107,6 +110,30 @@ export class GameDetailsComponent extends DefaultComponent {
           api(`games/${this.game()?.id}/flags`),
           'POST',
           flagColor,
+        );
+      },
+      injector: this.injector,
+    });
+  }
+
+  addVote() {
+    resource({
+      loader: async () => {
+        return this.httpService.sweetFetch<void, void>(
+          api(`games/me/votes`),
+          'POST',
+        );
+      },
+      injector: this.injector,
+    });
+  }
+
+  resetVotes() {
+    resource({
+      loader: async () => {
+        return this.httpService.sweetFetch<void, void>(
+          api(`games/me/votes`),
+          'DELETE',
         );
       },
       injector: this.injector,

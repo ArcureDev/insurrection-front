@@ -37,7 +37,7 @@ export class OverlayTokensComponent {
       const gameId = this.gameId()
       if (!gameId) return
 
-      this.httpService.coucouGame(gameId)
+      this.httpService.syncGame(gameId)
       this.httpService.subscribeToGameUpdates(gameId)
     });
 
