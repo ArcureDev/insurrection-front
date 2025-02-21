@@ -64,8 +64,14 @@ export class HttpService implements OnDestroy {
     );
 
     messageStream$.subscribe({
-      next: game => this.currentGame.set(game),
-      error: err => console.error(err),
+      next: game => {
+        this.hasSub.set(true)
+        this.currentGame.set(game)
+      },
+      error: err => {
+        this.hasSub.set(false)
+        console.error(err)
+      },
       complete: () => console.log("Connexion fermée")
     });
   }
