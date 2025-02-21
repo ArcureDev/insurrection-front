@@ -55,7 +55,7 @@ export class HttpService implements OnDestroy {
   }
 
   subscribeToGameUpdates(gameId: number) {
-    const subject = webSocket<Game>(`ws://localhost:8080/ws`);
+    const subject = webSocket<Game>(`wss://${window.location.hostname}/ws`);
 
     const messageStream$ = subject.multiplex(
       () => (gameId),  // Subscribe message
