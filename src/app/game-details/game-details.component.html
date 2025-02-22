@@ -5,28 +5,11 @@
       @for (player of game()?.players; track player.id) {
         <ins-card class="w-96" [title]="player.name" [subtitle]="player.role" [color]="player.color">
           <div class="flex gap-2">
-            <ins-default-tokens [game]="currGame" [player]="player" [players]="game()?.players ?? []" [type]="'SHARD'"/>
-            <ins-default-tokens [game]="currGame" [player]="player" [players]="game()?.players ?? []" [type]="'INFLUENCE'"/>
+            @if (myPlayer(); as myPlayerr) {
+              <ins-default-tokens [game]="currGame" [player]="player" [players]="game()?.players ?? []" [type]="'SHARD'" [myPlayer]="myPlayerr"/>
+              <ins-default-tokens [game]="currGame" [player]="player" [players]="game()?.players ?? []" [type]="'INFLUENCE'" [myPlayer]="myPlayerr"/>
+            }
           </div>
-
-
-<!--          <div class="flex gap-2">-->
-<!--            @let currPlayer = myPlayer();-->
-<!--            @if (currPlayer) {-->
-<!--              @if (currPlayer.id !== player.id) {-->
-<!--                @if ((influenceTokensByPlayersIds()?.get(currPlayer.id) ?? 0) > 0) {-->
-<!--                  <ins-button [title]="'Donner un de mes jeton d\'influence'" (clicking)="giveMyToken(player)">-->
-<!--                    <ins-token [type]="'INFLUENCE'" [color]="currPlayer.color" [size]="25"/>-->
-<!--                  </ins-button>-->
-<!--                }-->
-<!--                @if ((influenceTokensByPlayersIds()?.get(player.id) ?? 0) > 0) {-->
-<!--                  <ins-button [title]="'Restituer un jeton d\'influence'" (clicking)="giveToken(player)">-->
-<!--                    <ins-token [type]="'INFLUENCE'" [color]="player.color" [size]="25"/>-->
-<!--                  </ins-button>-->
-<!--                }-->
-<!--              }-->
-<!--            }-->
-<!--          </div>-->
         </ins-card>
       }
     </div>

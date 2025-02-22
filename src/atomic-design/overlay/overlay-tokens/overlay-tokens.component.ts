@@ -1,15 +1,12 @@
 import {Component, effect, inject, input, signal, untracked} from '@angular/core';
 import {HttpService} from '../../../app/http.service';
 import {Token, TokenType} from '../../../app/types';
-import {DefaultTokensComponent} from '../../tokens/default-tokens.component';
 import {ActivatedRoute} from '@angular/router';
 import {isNotNullOrUndefined} from '../../../app/utils/object.utils';
 
 @Component({
   selector: 'ins-overlay-tokens',
-  imports: [
-    DefaultTokensComponent
-  ],
+  imports: [],
   templateUrl: './overlay-tokens.component.html',
   styleUrl: './overlay-tokens.component.scss'
 })

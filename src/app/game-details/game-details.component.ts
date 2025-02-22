@@ -58,34 +58,6 @@ export class GameDetailsComponent extends DefaultComponent {
     );
   }
 
-  giveToken(player: Player) {
-    resource({
-      loader: async () => {
-        const game = await this.httpService.sweetFetch<Game, void>(
-          api(`games/${this.game()?.id}/players/${player.id}/tokens`),
-          'POST',
-        );
-        this.httpService.currentGame.set(game);
-        return game;
-      },
-      injector: this.injector,
-    });
-  }
-
-  giveMyToken(player: Player) {
-    resource({
-      loader: async () => {
-        const game = await this.httpService.sweetFetch<Game, void>(
-          api(`games/${this.game()?.id}/players/${player.id}/tokens/me`),
-          'POST',
-        );
-        this.httpService.currentGame.set(game);
-        return game;
-      },
-      injector: this.injector,
-    });
-  }
-
   giveShardToken() {
     resource({
       loader: async () => {
