@@ -1,11 +1,36 @@
 @let size = 25;
-<div class="flex flex-wrap text-black" [title]="title()">
-  @for (token of displayedTokens().slice(0, 5); track $index) {
-    <ins-token [size]="size" [color]="type() === 'SHARD' ? '#000' : token.owner?.color" [type]="token.type"/>
+@if (type() === 'INFLUENCE') {
+  @if (nbInfluenceTokensByPlayersIds(); as nbTokensByIds) {
+    <div class="flex flex-wrap gap-2">
+      @for (nbTokenByPlayer of nbTokensByIds | keyvalue; track $index) {
+        @if (nbTokenByPlayer.value > 0) {
+          @if (playersByPlayersIds().get(nbTokenByPlayer.key); as player) {
+            @let color = isLight(player.color) ? "#000" : "#fff";
+            <div class="flex p-1 rounded-md max-w-32 items-center" [style.background-color]="player.color" [style.color]="color">
+              <span class="truncate me-2">{{player.name}}</span>
+              {{nbTokenByPlayer.value}}
+              <ins-token [size]="size" [color]="'#000'" [type]="'INFLUENCE'"/>
+            </div>
+          }
+        }
+      }
+    </div>
   }
-  @if (displayedTokens().length > 5) {
-    <span class="ps-1">+</span>
-    <span class="self-end">{{displayedTokens().length - 5}}</span>
+} @else {
+  @if (nbShardTokensByPlayersIds(); as nbTokensByIds) {
+    <div class="flex flex-wrap gap-2">
+      @for (nbTokenByPlayer of nbTokensByIds | keyvalue; track $index) {
+        @if (nbTokenByPlayer.value > 0) {
+          @if (playersByPlayersIds().get(nbTokenByPlayer.key); as player) {
+            @let color = isLight(player.color) ? "#000" : "#fff";
+            <div class="flex p-1 rounded-md max-w-32 bg-[#000] text-white items-center">
+              {{nbTokenByPlayer.value}}
+              <ins-token [size]="size" [color]="'#000'" [type]="type()"/>
+            </div>
+          }
+        }
+      }
+    </div>
   }
-</div>
+}
 

@@ -1,41 +1,41 @@
-import {Component, effect, input, signal, untracked} from '@angular/core';
-import {Token, TokenType} from '../../app/types';
+import {Component, computed, input, Signal} from '@angular/core';
 import {TokenComponent} from './token/token.component';
+import {KeyValuePipe} from '@angular/common';
+import {Game, Player, TokenType} from '../../app/types';
+import {isLight, getNbTokensByPlayersIds} from '../../app/utils/utils';
 
 @Component({
   selector: 'ins-default-tokens',
-  imports: [TokenComponent],
+  imports: [TokenComponent, KeyValuePipe],
   templateUrl: './default-tokens.component.html',
   styleUrl: './default-tokens.component.scss',
 })
 export class DefaultTokensComponent {
-  tokens = input.required<Token[]>();
-  type = input.required<TokenType>();
+  game = input.required<Game>()
+  player = input.required<Player>()
+  players = input.required<Player[]>()
+  type = input.required<TokenType>()
 
-  title = signal<string | undefined>(undefined);
-  shardTokens = signal<Token[]>([]);
-  influenceTokens = signal<Token[]>([]);
-  displayedTokens = signal<Token[]>([]);
+  playersByPlayersIds: Signal<Map<number, Player>> = computed(() => {
+    return this.players().reduce((acc, player) => {
+      acc.set(player.id, player)
+      return acc
+    }, new Map<number, Player>)
+  })
 
-  constructor() {
-    effect(() => {
-      const type = this.type();
-      const tokens = this.tokens();
-      if (!type) return;
+  nbInfluenceTokensByPlayersIds = computed(() => {
+    const game = this.game();
+    const player = this.player()
+    if (!game || !player) return;
+    return getNbTokensByPlayersIds(game, player, 'INFLUENCE')
+  })
 
-      untracked(() => {
-        this.shardTokens.set(tokens.filter(it => it.type === 'SHARD'))
-        this.influenceTokens.set(tokens.filter(it => it.type === 'INFLUENCE'))
+  nbShardTokensByPlayersIds = computed(() => {
+    const game = this.game();
+    const player = this.player()
+    if (!game || !player) return;
+    return getNbTokensByPlayersIds(game, player, 'SHARD')
+  })
 
-        const title =
-          type === 'SHARD'
-            ? this.shardTokens().length + " jetons d'éclat"
-            : this.influenceTokens().length + " jetons d'influence";
-        this.title.set(title);
-
-        const displayedTokens = type === 'SHARD' ? this.shardTokens() : this.influenceTokens();
-        this.displayedTokens.set(displayedTokens);
-      })
-    });
-  }
+  protected readonly isLight = isLight;
 }

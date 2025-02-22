@@ -8,6 +8,7 @@ import {FlagComponent} from '../../atomic-design/flag/flag.component';
 import {DefaultTokensComponent} from '../../atomic-design/tokens/default-tokens.component';
 import {CardComponent} from '../../atomic-design/card/card.component';
 import {NgTemplateOutlet} from '@angular/common';
+import {getNbTokensByPlayersIds} from '../utils/utils';
 
 @Component({
   selector: 'ins-game-details',
@@ -49,7 +50,6 @@ export class GameDetailsComponent extends DefaultComponent {
   }
 
   private init(game: Game) {
-    console.log('hihih', game)
     this.nbRedFlags.set(
       game.flags.filter((flag) => flag.color === 'RED').length,
     );
@@ -63,6 +63,20 @@ export class GameDetailsComponent extends DefaultComponent {
       loader: async () => {
         const game = await this.httpService.sweetFetch<Game, void>(
           api(`games/${this.game()?.id}/players/${player.id}/tokens`),
+          'POST',
+        );
+        this.httpService.currentGame.set(game);
+        return game;
+      },
+      injector: this.injector,
+    });
+  }
+
+  giveMyToken(player: Player) {
+    resource({
+      loader: async () => {
+        const game = await this.httpService.sweetFetch<Game, void>(
+          api(`games/${this.game()?.id}/players/${player.id}/tokens/me`),
           'POST',
         );
         this.httpService.currentGame.set(game);
