@@ -20,7 +20,9 @@
                 </ins-button>
               }
               @if (currGame.state === 'ON_GOING') {
-                <ins-button [title]="'Voir'" [routerLink]="authenticatedRoute('game-details')">Voir</ins-button>
+                <ins-button [title]="'Voir'" [routerLink]="authenticatedRoute('game-details')">
+                  <i class="fa-regular fa-eye me-2"></i> Voir la game
+                </ins-button>
               }
             </div>
           }
@@ -42,44 +44,48 @@
           <p>- Il faut au minimum 3 joueur·euse·s pour distribuer les jetons</p>
         </div>
       }
-      <label class="inline-flex items-center me-5 cursor-pointer" title="Permet de configurer les overlays pour les différent·e·s joueur·euse·s">
-        <input type="checkbox" class="sr-only peer" [(ngModel)]="isStreamerMode" [checked]="isStreamerMode()">
-        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-1 peer-focus:ring-red-500 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600 dark:peer-checked:bg-red-600"></div>
-        <span class="ms-3 text-sm font-medium dark:text-gray-300">Mode configuration du stream</span>
-      </label>
-
-      <ul class="flex gap-4 grow">
+      <ul class="flex gap-8">
+        <div class="flex flex-col gap-4 border-r pr-8 border-gray-50">
+          @for (player of currGame.players | withoutMyPlayer: myPlayer(); track $index) {
+            <ins-card class="max-w-52" [title]="player.name" [subtitle]="player.role" [color]="player.color">
+              @if (isStreamerMode()) {
+                <ins-game-player-buttons [player]="player" [isStreamerMode]="isStreamerMode()" [gameId]="currGame.id"/>
+              }
+            </ins-card>
+          }
+        </div>
         @let currPlayer = myPlayer();
         @if (currPlayer) {
-          <div class="flex h-full">
-            <ins-card [title]="currPlayer.name" [subtitle]="currPlayer.role" [color]="currPlayer.color">
-              <div class="flex flex-col justify-between h-full">
-                <ins-game-player-buttons [player]="currPlayer" [isStreamerMode]="isStreamerMode()" [gameId]="currGame.id"/>
-                @if (!isStreamerMode()) {
-                  <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-4 w-full">
+            <div class="flex w-full">
+              <ins-card class="w-full" [title]="currPlayer.name" [subtitle]="currPlayer.role" [color]="currPlayer.color">
+              </ins-card>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div>
+                <label class="inline-flex items-center me-5 cursor-pointer" title="Permet de configurer les overlays pour les différent·e·s joueur·euse·s">
+                  <input type="checkbox" class="sr-only peer" [(ngModel)]="isStreamerMode" [checked]="isStreamerMode()">
+                  <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-1 peer-focus:ring-red-500 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600 dark:peer-checked:bg-red-600"></div>
+                  <span class="ms-3 text-sm font-medium dark:text-gray-300">Mode configuration du stream</span>
+                </label>
+              </div>
+              @if (!isStreamerMode()) {
+                @if (isPickingRole()) {
+                  <ins-game-role-picker [gameId]="currGame.id" [player]="myPlayer()" (exiting)="isPickingRole.set(false)"/>
+                } @else {
+                  <div class="flex gap-2">
                     <ins-button [title]="'Choisir son rôle'" [isGhost]="true" (clicking)="isPickingRole.set(true)">
-                      Choisir son rôle
+                      <i class="fas fa-user-tag me-2"></i> Choisir son rôle
                     </ins-button>
                     <ins-button [title]="'Changer de couleur'" [isGhost]="true" (clicking)="changeColorDialog.showModal()">
-                      Changer de couleur
+                      <i class="fas fa-palette me-2"></i> Changer de couleur
                     </ins-button>
                   </div>
                 }
-              </div>
-            </ins-card>
-          </div>
-        }
-        @if (isPickingRole()) {
-          <ins-game-role-picker [gameId]="currGame.id" [player]="myPlayer()"/>
-        } @else {
-          <div class="flex flex-col gap-4 grow">
-            @for (player of currGame.players | withoutMyPlayer: myPlayer(); track $index) {
-              <ins-card [title]="player.name" [subtitle]="player.role" [color]="player.color">
-                <li class="flex flex-col gap-2 justify-between">
-                  <ins-game-player-buttons [player]="player" [isStreamerMode]="isStreamerMode()" [gameId]="currGame.id"/>
-                </li>
-              </ins-card>
-            }
+              } @else {
+                <ins-game-player-buttons [player]="currPlayer" [isStreamerMode]="isStreamerMode()" [gameId]="currGame.id"/>
+              }
+            </div>
           </div>
         }
       </ul>

@@ -5,7 +5,7 @@ import {
   effect,
   ElementRef,
   inject,
-  Injector, input,
+  Injector, input, output,
   signal, untracked,
   viewChild
 } from '@angular/core';
@@ -83,6 +83,8 @@ export class GameRolePickerComponent implements AfterViewInit {
   gameId = input.required<number | undefined>();
   player = input.required<Player | undefined>();
 
+  exiting = output()
+
   rolesElement = viewChild.required<ElementRef>('roles');
 
   private readonly destroyRef = inject(DestroyRef);
@@ -147,7 +149,9 @@ export class GameRolePickerComponent implements AfterViewInit {
     const gameId = this.gameId();
     const playerId = this.player()?.id;
     if (!gameId || !playerId) return;
-    this.httpService.sweetFetch(`/api/games/${gameId}/players/${playerId}/roles`, 'POST', this.playerRoles())
+    this.httpService.sweetFetchWithNoReturn(`/api/games/${gameId}/players/${playerId}/roles`, 'POST', this.playerRoles()).then(() => {
+      this.exiting.emit()
+    })
   }
 }
 

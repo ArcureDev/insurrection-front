@@ -1,16 +1,32 @@
-<ins-button [title]="'Valider l\'ordre des rôles'" (clicking)="saveRolesOrder()">Valider l'ordre des rôles</ins-button>
-<div class="flex gap-2">
-  <ul #roles class="flex flex-col gap-2">
-    @for (role of playerRoles(); track role) {
-      <li [id]="role" class="flex gap-2 items-center justify-between" draggable="true">
-        <span class="ms-2 cursor-pointer">{{role}}</span>
-        <div class="flex gap-2">
-          <ins-button [title]="'Voir la description du role' + role" (clicking)="selectRole(role)">
-            <i class="fa-regular fa-eye"></i>
-          </ins-button>
-        </div>
-      </li>
-    }
-  </ul>
-  <p>{{description()}}</p>
+<div class="flex flex-col gap-8">
+  <div class="flex flex-col gap-2">
+    <h2 class="text-center text-xl font-semibold">Choisir l'ordre des rôles selon vos préférences</h2>
+    <div class="flex gap-2 justify-center">
+      <ins-button [title]="'Valider l\'ordre des rôles'" (clicking)="saveRolesOrder()">
+        <i class="fas fa-check me-2"></i> Valider
+      </ins-button>
+      <ins-button [title]="'Annuler l\'ordre des rôles'" (clicking)="exiting.emit()">
+        <i class="fas fa-times me-2"></i> Annuler
+      </ins-button>
+    </div>
+  </div>
+  <div class="flex gap-8">
+    <ul #roles class="flex flex-col gap-2">
+      @for (role of playerRoles(); track role) {
+        <li [id]="role" class="flex gap-12 items-center justify-between" draggable="true">
+          <div class="flex gap-4">
+            <span>{{$index + 1}}</span>
+            <span class="cursor-grab">{{role}}</span>
+          </div>
+          <div class="flex gap-2">
+            <ins-button [title]="'Voir la description du role' + role" (clicking)="selectRole(role)">
+              <i class="fa-regular fa-eye"></i>
+            </ins-button>
+          </div>
+        </li>
+      }
+    </ul>
+    <p>{{description()}}</p>
+  </div>
+
 </div>

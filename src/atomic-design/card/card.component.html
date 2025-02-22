@@ -1,6 +1,6 @@
-<section class="flex flex-col gap-2  border-2 border-gray-200 rounded-xl text-card-foreground shadow p-6 h-full"
+<section class="flex flex-col gap-2 border-4 border-gray-200 rounded-xl shadow p-6"
          [style.border-color]="color()">
-  <h1 class="text-xl font-bold">{{title()}}</h1>
+  <h1 class="text-xl font-bold truncate">{{title()}}</h1>
   @if (subtitle()) {
     <h2 class="text-md font-semi-bold">{{subtitle()}}</h2>
   }

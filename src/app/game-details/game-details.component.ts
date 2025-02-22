@@ -29,10 +29,6 @@ export class GameDetailsComponent extends DefaultComponent {
 
   nbRedFlags = signal<number>(0);
   nbBlackFlags = signal<number>(0);
-  topPlayers = signal<Player[]>([]);
-  rightPlayers = signal<Player[]>([]);
-  bottomPlayers = signal<Player[]>([]);
-  leftPlayers = signal<Player[]>([]);
 
   myPlayer = computed(() => this.game()?.players.find((player) => player.me))
   canGiveShardToken = computed(() => {
@@ -53,16 +49,13 @@ export class GameDetailsComponent extends DefaultComponent {
   }
 
   private init(game: Game) {
+    console.log('hihih', game)
     this.nbRedFlags.set(
       game.flags.filter((flag) => flag.color === 'RED').length,
     );
     this.nbBlackFlags.set(
       game.flags.filter((flag) => flag.color === 'BLACK').length,
     );
-    this.topPlayers.set(game.players.filter(it => it.id % 4 === 0))
-    this.rightPlayers.set(game.players.filter(it => it.id % 4 === 1))
-    this.bottomPlayers.set(game.players.filter(it => it.id % 4 === 2))
-    this.leftPlayers.set(game.players.filter(it => it.id % 4 === 3))
   }
 
   giveToken(player: Player) {

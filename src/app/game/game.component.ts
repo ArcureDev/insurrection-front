@@ -104,10 +104,9 @@ export class GameComponent extends DefaultComponent {
     if (!this.game()) return;
     resource({
       loader: async () => {
-        const game = await this.httpService.sweetFetch<Game, void>(
+        await this.httpService.sweetFetchWithNoReturn<Game>(
           api(`games/${this.game()?.id}/tokens`),
         );
-        this.httpService.currentGame.set(game);
         this.dealTokensDialog()?.nativeElement.close();
       },
       injector: this.injector,
@@ -122,7 +121,7 @@ export class GameComponent extends DefaultComponent {
 
     resource({
       loader: async () => {
-        await this.httpService.sweetFetch<void, string>(
+        await this.httpService.sweetFetchWithNoReturn<string>(
           api(`games/${this.game()?.id}/players/color`),
           'POST',
           color,

@@ -2,7 +2,6 @@ import {effect, inject, Injectable, OnDestroy, resource, signal, untracked,} fro
 import {toHttpParams} from './utils/object.utils';
 import {Game, User} from './types';
 import {Router} from '@angular/router';
-import {PATH_GAME_DETAILS} from './app.routes';
 import {webSocket} from 'rxjs/webSocket';
 
 export const api = (value: string) => `/api/${value}`;
@@ -55,7 +54,9 @@ export class HttpService implements OnDestroy {
   }
 
   subscribeToGameUpdates(gameId: number) {
-    const subject = webSocket<Game>(`wss://${window.location.hostname}/ws`);
+    const hostname = window.location.hostname
+    const wsUrl = hostname.includes('localhost') ? `ws://${hostname}:8080/ws` : `wss://${hostname}/ws`
+    const subject = webSocket<Game>(wsUrl);
 
     const messageStream$ = subject.multiplex(
       () => (gameId),  // Subscribe message
