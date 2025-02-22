@@ -1,4 +1,12 @@
 @let currType = type();
-@if (currType) {
-<!--  <ins-default-tokens [tokens]="tokens()" [type]="currType"/>-->
+@let currPlayer = player();
+@let currGame = game();
+@if (currType && currPlayer && currGame) {
+  <ins-default-tokens
+    [game]="currGame"
+    [player]="currPlayer"
+    [players]="game()?.players ?? []"
+    [type]="currType"
+    [myPlayer]="null"
+  />
 }

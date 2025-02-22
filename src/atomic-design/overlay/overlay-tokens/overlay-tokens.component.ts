@@ -1,12 +1,15 @@
-import {Component, effect, inject, input, signal, untracked} from '@angular/core';
+import {Component, computed, effect, inject, input, signal, untracked} from '@angular/core';
 import {HttpService} from '../../../app/http.service';
-import {Token, TokenType} from '../../../app/types';
+import {Player, Token, TokenType} from '../../../app/types';
 import {ActivatedRoute} from '@angular/router';
 import {isNotNullOrUndefined} from '../../../app/utils/object.utils';
+import {DefaultTokensComponent} from '../../tokens/default-tokens.component';
 
 @Component({
   selector: 'ins-overlay-tokens',
-  imports: [],
+  imports: [
+    DefaultTokensComponent
+  ],
   templateUrl: './overlay-tokens.component.html',
   styleUrl: './overlay-tokens.component.scss'
 })
@@ -22,8 +25,9 @@ export class OverlayTokensComponent {
   private readonly router = inject(ActivatedRoute);
   private readonly httpService = inject(HttpService);
 
-  tokens = signal<Token[]>([]);
+  player = signal<Player | undefined>(undefined);
   type = signal<TokenType | undefined>(undefined);
+  game = computed(() => this.httpService.currentGame())
 
   constructor() {
     this.router.queryParams.subscribe(params => {
@@ -39,12 +43,12 @@ export class OverlayTokensComponent {
     });
 
     effect(() => {
-      const game = this.httpService.currentGame();
+      const game = this.game()
       const playerId = this.playerId();
       untracked(() => {
         const currPlayer = game?.players.find(it => it.id === playerId)
         if (!currPlayer) return;
-        this.tokens.set(currPlayer.playableTokens)
+        this.player.set(currPlayer)
       })
     });
   }

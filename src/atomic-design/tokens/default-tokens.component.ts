@@ -29,7 +29,7 @@ export class DefaultTokensComponent {
   player = input.required<Player>()
   players = input.required<Player[]>()
   type = input.required<TokenType>()
-  myPlayer = input.required<Player>()
+  myPlayer = input.required<Player | null>()
 
   giveMyTokenElementRef = viewChild<ElementRef<HTMLDialogElement>>('giveMyTokenElementRef')
   giveTokenElementRef = viewChild<ElementRef<HTMLDialogElement>>('giveTokenElementRef')
@@ -87,7 +87,7 @@ export class DefaultTokensComponent {
   }
 
   openModal(isMe: boolean, player: Player) {
-    if (this.myPlayer().id !== this.player().id) return
+    if (this.myPlayer()?.id !== this.player().id) return
     if (isMe) {
       this.giveMyTokenElementRef()?.nativeElement.showModal()
       return

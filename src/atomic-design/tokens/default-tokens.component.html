@@ -1,10 +1,11 @@
 @let size = 25;
+@let myPlayerr = myPlayer();
 @if (type() === 'INFLUENCE') {
   @if (nbInfluenceTokensByPlayersIds(); as nbTokensByIds) {
     <div class="flex flex-wrap gap-2">
       @for (nbTokenByPlayerId of nbTokensByIds | keyvalue; track $index) {
-        @let isNotMyCard = player().id !== myPlayer().id;
-        @let isMe = nbTokenByPlayerId.key === myPlayer().id;
+        @let isNotMyCard = player().id !== myPlayerr?.id;
+        @let isMe = nbTokenByPlayerId.key === myPlayerr?.id;
         @if (nbTokenByPlayerId.value > 0) {
           @if (playersByPlayersIds().get(nbTokenByPlayerId.key); as player) {
             @let color = isLight(player.color) ? "#000" : "#fff";
@@ -46,10 +47,12 @@
       <h1 class="font-semibold text-xl">Donner mon jeton à </h1>
       <button title="Fermer la modale" class="cursor-pointer p-4" (click)="giveMyTokenElementRef.close()">x</button>
     </div>
-    @for (player of players() | withoutMyPlayer : myPlayer(); track player.id) {
-      <ins-button class="w-full" [title]="'Donner un jeton à ' + player.name" [fullWidth]="true" (clicking)="giveMyToken(player.id)">
-        {{player.name}}
-      </ins-button>
+    @if (myPlayerr) {
+      @for (player of players() | withoutMyPlayer : myPlayerr; track player.id) {
+        <ins-button class="w-full" [title]="'Donner un jeton à ' + player.name" [fullWidth]="true" (clicking)="giveMyToken(player.id)">
+          {{player.name}}
+        </ins-button>
+      }
     }
   </div>
 </dialog>
